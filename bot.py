@@ -1,5 +1,10 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, filters
+import logging
+
+# Устанавливаем базовую конфигурацию логирования
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # API-ключ от BotFather
 API_KEY = '7443648123:AAEq3rVm9O4m23u9KjasiDwSWENkn6g8EtA'
@@ -9,6 +14,7 @@ ADMIN_ID = 222638686  # Получи его через @userinfobot в Telegram
 
 # Функция для обработки команды /start
 async def start(update: Update, context: CallbackContext):
+    logger.info("Start command triggered")  # Логируем начало обработки команды /start
     welcome_text = (
         "Hello! I am a bot ready to anonymously receive photos, videos, location points, "
         "and useful information that fits the theme of the website TagDiscover.com.\n\n"
@@ -22,17 +28,20 @@ async def start(update: Update, context: CallbackContext):
 
     await update.message.reply_text(welcome_text)
     await update.message.reply_text(follow_up_text)  # Второе сообщение
+    logger.info("Sent welcome message and follow-up text")  # Логируем отправку сообщений
 
 # Функция для обработки текстовых сообщений от пользователей
 async def handle_message(update: Update, context: CallbackContext):
     text_received = update.message.text
     user_id = update.message.from_user.id  # Получаем ID пользователя
+    logger.info(f"Received message from user {user_id}: {text_received}")  # Логируем полученное сообщение
 
     # Уведомление администратору
     await context.bot.send_message(ADMIN_ID, f"New message from user {user_id}: {text_received}")
 
     # Ответ пользователю
     await update.message.reply_text("Thank you for your message! We will get back to you shortly.")
+    logger.info("Sent confirmation message to user.")  # Логируем ответ пользователю
 
 # Функция для администратора, чтобы отвечать пользователям
 async def admin_reply(update: Update, context: CallbackContext):
@@ -49,8 +58,10 @@ async def admin_reply(update: Update, context: CallbackContext):
             # Отправляем сообщение пользователю
             await context.bot.send_message(user_id, message_to_send)
             await update.message.reply_text(f"Message sent to user {user_id}.")
+            logger.info(f"Sent message to user {user_id}.")  # Логируем отправку сообщения
         except ValueError:
             await update.message.reply_text("Invalid user ID. Please enter a valid number.")
+            logger.error("Invalid user ID entered")  # Логируем ошибку
 
 # Основная функция для запуска бота
 def main():
@@ -65,4 +76,8 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Запускаем бота
+    logger.info("Bot is starting...")  # Логируем запуск бота
     application.run_polling()
+
+if __name__ == "__main__":
+    main()
