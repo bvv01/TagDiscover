@@ -1,6 +1,6 @@
+import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackContext, filters
-import logging
 
 # Устанавливаем базовую конфигурацию логирования
 logging.basicConfig(level=logging.INFO)
